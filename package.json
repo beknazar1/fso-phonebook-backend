@@ -1,7 +1,7 @@
 {
   "name": "fso-phonebook-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Now includes static frontend",
   "main": "index.js",
   "scripts": {
     "build:ui": "rm -rf build && cd ../fullstackopen/part2/phonebook/ && npm run build --prod && cp -r build ../../../fso-phonebook-backend/",
