@@ -41,12 +41,11 @@ app.get("/api/persons/:id", (req, res, next) => {
 });
 
 app.delete("/api/persons/:id", (req, res) => {
-  Person.findByIdAndDelete(req.params.id).then(result => {
-    if (result === null) {
-      res.status(404).end();
-    }
-    res.json(result.toJSON());
-  });
+  Person.findByIdAndDelete(req.params.id)
+    .then(result => {
+      res.status(204).end()
+    })
+    .catch(error => next(error))
 });
 
 app.post("/api/persons", (req, res) => {
