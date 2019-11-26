@@ -16,7 +16,7 @@ morgan.token("post-content", function(req, res) {
 app.use(express.static("build"));
 app.use(express.json());
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :post-content"));
-// app.use(cors());
+app.use(cors());
 
 
 // API routing
@@ -55,7 +55,7 @@ app.delete("/api/persons/:id", (req, res, next) => {
     .catch(error => next(error))
 });
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
   const body = req.body;
 
   if (!body.name || !body.number) {
@@ -64,14 +64,16 @@ app.post("/api/persons", (req, res) => {
     });
   }
 
-  let person = new Person({
+  let person = {
     name: body.name,
     number: body.number
-  });
+  }
 
-  person.save().then(savedPerson => {
-    res.json(savedPerson.toJSON());
-  });
+  Person.create(person)
+    .then(savedPerson => {
+      res.json(savedPerson.toJSON());
+    })
+    .catch(error => next(error))
 });
 
 app.put("/api/persons/:id", (req, res, next) => {
@@ -95,7 +97,9 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError' && error.kind === 'ObjectId') {
     return response.status(400).send({ error: 'malformatted id' })
-  } 
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
 
   next(error)
 }
