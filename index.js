@@ -20,6 +20,13 @@ app.use(morgan(":method :url :status :res[content-length] - :response-time ms :p
 
 
 // API routing
+app.get('/api/info', (req, res) => {
+  Person.estimatedDocumentCount()
+    .then(count => {
+      res.json({message: `There are ${count} people in the phonebook on ${Date()}`})
+    })
+})
+
 app.get("/api/persons", (req, res) => {
   Person.find({}).then(persons => {
     const arr = [];
@@ -40,7 +47,7 @@ app.get("/api/persons/:id", (req, res, next) => {
     .catch(error => next(error))
 });
 
-app.delete("/api/persons/:id", (req, res) => {
+app.delete("/api/persons/:id", (req, res, next) => {
   Person.findByIdAndDelete(req.params.id)
     .then(result => {
       res.status(204).end()
@@ -65,6 +72,21 @@ app.post("/api/persons", (req, res) => {
   person.save().then(savedPerson => {
     res.json(savedPerson.toJSON());
   });
+});
+
+app.put("/api/persons/:id", (req, res, next) => {
+  const body = req.body;
+
+  let person ={
+    name: body.name,
+    number: body.number
+  }
+
+  Person.findByIdAndUpdate(req.params.id, person, { new: true })
+    .then(savedPerson => {
+      res.json(savedPerson.toJSON());
+    })
+    .catch(error => next(error))
 });
 
 // Error handlers
